@@ -1,0 +1,46 @@
+[
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "_list", "type": "bytes32" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  { "inputs": [], "name": "MismatchedLength", "type": "error" },
+  { "inputs": [], "name": "MustBeCalledByOwner", "type": "error" },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "oldElements",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "newElements",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "batchUpdate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "list",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "oldElement", "type": "bytes32" },
+      { "internalType": "bytes32", "name": "newElement", "type": "bytes32" }
+    ],
+    "name": "update",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
