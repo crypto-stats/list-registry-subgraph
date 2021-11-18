@@ -1,4 +1,4 @@
-specVersion: 0.0.1
+specVersion: 0.0.2
 schema:
   file: ./schema.graphql
 dataSources:
@@ -6,17 +6,19 @@ dataSources:
     name: Registry
     network: kovan
     source:
-      address: "0x85f70241D3a69715044ab0c166Ba259F58C8cF5f"
+      address: "0xa21cc34c6662e6f38dc81d958552c2aa1864ab47"
       abi: Registry
+      startBlock: 28438399
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.2
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-
+        - List
       abis:
         - name: Registry
           file: ./abis/Registry.json
       eventHandlers:
-
+        - event: ListCreated(indexed bytes32,address)
+          handler: handleListCreated
       file: ./src/mapping.ts

@@ -1,5 +1,4 @@
-type ExampleEntity @entity {
+type List @entity {
   id: ID!
-  block: Bytes!
-  transaction: Bytes!
+  proxy: Bytes!
 }
