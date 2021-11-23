@@ -1,5 +1,5 @@
-import { Bytes } from "@graphprotocol/graph-ts"
-import { ListCreated, ElementAdded } from "../generated/Registry/Registry"
+import { Bytes, store } from "@graphprotocol/graph-ts"
+import { ListCreated, ElementAdded, ElementUpdated } from "../generated/Registry/Registry"
 import { List, Adapter, ListAdapter } from "../generated/schema"
 
 function decodeCID(cid: Bytes): string {
@@ -24,7 +24,33 @@ export function handleElementAdded(event: ElementAdded): void {
   let listAdapter = new ListAdapter(event.params.list.toString() + '-' + adapterCid)
   listAdapter.list = event.params.list.toString()
   listAdapter.adapter = adapterCid
+  listAdapter.previousVersions = []
 
   adapter.save()
   listAdapter.save()
+}
+
+export function handleElementUpdated(event: ElementUpdated): void {
+  let oldCid = decodeCID(event.params.oldElement)
+  let newCid = decodeCID(event.params.newElement)
+
+  let newAdapter = Adapter.load(newCid)
+  if (!newAdapter) {
+    newAdapter = new Adapter(newCid)
+  }
+
+  let oldListAdapter = ListAdapter.load(event.params.list.toString() + '-' + oldCid)
+  let previousVersions = oldListAdapter.previousVersions
+  previousVersions.push(oldCid)
+
+  let listAdapter = new ListAdapter(event.params.list.toString() + '-' + newCid)
+  listAdapter.list = event.params.list.toString()
+  listAdapter.adapter = newCid
+  listAdapter.previousVersions = previousVersions
+
+  newAdapter.save()
+  listAdapter.save()
+
+  store.remove('Adapter', oldCid)
+  store.remove('ListAdapter', event.params.list.toString() + '-' + oldCid)
 }

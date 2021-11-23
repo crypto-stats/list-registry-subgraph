@@ -23,4 +23,6 @@ dataSources:
           handler: handleListCreated
         - event: ElementAdded(indexed bytes32,bytes32)
           handler: handleElementAdded
+        - event: ElementUpdated(indexed bytes32,bytes32,bytes32)
+          handler: handleElementUpdated
       file: ./src/mapping.ts

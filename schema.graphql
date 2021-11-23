@@ -11,6 +11,7 @@ type Adapter @entity {
 
 type ListAdapter @entity {
   id: ID!
-  list: List
-  adapter: Adapter
+  list: List!
+  adapter: Adapter!
+  previousVersions: [String!]!
 }
