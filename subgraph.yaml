@@ -21,4 +21,6 @@ dataSources:
       eventHandlers:
         - event: ListCreated(indexed bytes32,address)
           handler: handleListCreated
+        - event: ElementAdded(indexed bytes32,bytes32)
+          handler: handleElementAdded
       file: ./src/mapping.ts

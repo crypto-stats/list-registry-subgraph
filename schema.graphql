@@ -1,4 +1,16 @@
 type List @entity {
   id: ID!
   proxy: Bytes!
+  adapters: [ListAdapter!] @derivedFrom(field: "list")
+}
+
+type Adapter @entity {
+  id: ID!
+  lists: [ListAdapter!] @derivedFrom(field: "adapter")
+}
+
+type ListAdapter @entity {
+  id: ID!
+  list: List
+  adapter: Adapter
 }
