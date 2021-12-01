@@ -1,32 +1,32 @@
 import { Bytes, store } from "@graphprotocol/graph-ts"
-import { ListCreated, ListArchived, ElementAdded, ElementUpdated } from "../generated/Registry/Registry"
-import { List, Adapter, ListAdapter } from "../generated/schema"
+import { CollectionCreated, CollectionArchived, ElementAdded, ElementUpdated } from "../generated/Registry/Registry"
+import { Collection, Adapter, CollectionAdapter } from "../generated/schema"
 
 function decodeCID(cid: Bytes): string {
   return Bytes.fromHexString('1220' + cid.toHexString().slice(2)).toBase58()
 }
 
 function enableList(listId: Bytes): void {
-  let list = List.load(listId.toString())
-  if (list.archived) {
-    list.archived = false
-    list.save()
+  let collection = Collection.load(listId.toString())
+  if (collection.archived) {
+    collection.archived = false
+    collection.save()
   }
 }
 
-export function handleListCreated(event: ListCreated): void {
-  let list = new List(event.params.list.toString())
-  list.proxy = event.params.proxy
-  list.archived = false
+export function handleCollectionCreated(event: CollectionCreated): void {
+  let collection = new Collection(event.params.collection.toString())
+  collection.proxy = event.params.proxy
+  collection.archived = false
 
-  list.save()
+  collection.save()
 }
 
-export function handleListArchived(event: ListArchived): void {
-  let list = new List(event.params.list.toString())
-  list.archived = true
+export function handleCollectionArchived(event: CollectionArchived): void {
+  let collection = new Collection(event.params.collection.toString())
+  collection.archived = true
 
-  list.save()
+  collection.save()
 }
 
 export function handleElementAdded(event: ElementAdded): void {
@@ -37,15 +37,15 @@ export function handleElementAdded(event: ElementAdded): void {
     adapter = new Adapter(adapterCid)
   }
 
-  let listAdapter = new ListAdapter(event.params.list.toString() + '-' + adapterCid)
-  listAdapter.list = event.params.list.toString()
-  listAdapter.adapter = adapterCid
-  listAdapter.previousVersions = []
+  let collectionAdapter = new CollectionAdapter(event.params.collection.toString() + '-' + adapterCid)
+  collectionAdapter.collection = event.params.collection.toString()
+  collectionAdapter.adapter = adapterCid
+  collectionAdapter.previousVersions = []
 
-  enableList(event.params.list)
+  enableList(event.params.collection)
 
   adapter.save()
-  listAdapter.save()
+  collectionAdapter.save()
 }
 
 export function handleElementUpdated(event: ElementUpdated): void {
@@ -57,20 +57,20 @@ export function handleElementUpdated(event: ElementUpdated): void {
     newAdapter = new Adapter(newCid)
   }
 
-  let oldListAdapter = ListAdapter.load(event.params.list.toString() + '-' + oldCid)
+  let oldListAdapter = CollectionAdapter.load(event.params.collection.toString() + '-' + oldCid)
   let previousVersions = oldListAdapter.previousVersions
   previousVersions.push(oldCid)
 
-  let listAdapter = new ListAdapter(event.params.list.toString() + '-' + newCid)
-  listAdapter.list = event.params.list.toString()
-  listAdapter.adapter = newCid
-  listAdapter.previousVersions = previousVersions
+  let collectionAdapter = new CollectionAdapter(event.params.collection.toString() + '-' + newCid)
+  collectionAdapter.collection = event.params.collection.toString()
+  collectionAdapter.adapter = newCid
+  collectionAdapter.previousVersions = previousVersions
 
-  enableList(event.params.list)
+  enableList(event.params.collection)
 
   newAdapter.save()
-  listAdapter.save()
+  collectionAdapter.save()
 
   store.remove('Adapter', oldCid)
-  store.remove('ListAdapter', event.params.list.toString() + '-' + oldCid)
+  store.remove('CollectionAdapter', event.params.collection.toString() + '-' + oldCid)
 }

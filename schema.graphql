@@ -1,18 +1,18 @@
-type List @entity {
+type Collection @entity {
   id: ID!
   proxy: Bytes!
-  adapters: [ListAdapter!] @derivedFrom(field: "list")
+  adapters: [CollectionAdapter!] @derivedFrom(field: "collection")
   archived: Boolean
 }
 
 type Adapter @entity {
   id: ID!
-  lists: [ListAdapter!] @derivedFrom(field: "adapter")
+  collections: [CollectionAdapter!] @derivedFrom(field: "adapter")
 }
 
-type ListAdapter @entity {
+type CollectionAdapter @entity {
   id: ID!
-  list: List!
+  collection: Collection!
   adapter: Adapter!
   previousVersions: [String!]!
 }

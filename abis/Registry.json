@@ -5,7 +5,39 @@
             {
                 "indexed": true,
                 "internalType": "bytes32",
-                "name": "list",
+                "name": "collection",
+                "type": "bytes32"
+            }
+        ],
+        "name": "CollectionArchived",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "collection",
+                "type": "bytes32"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "proxy",
+                "type": "address"
+            }
+        ],
+        "name": "CollectionCreated",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "collection",
                 "type": "bytes32"
             },
             {
@@ -24,7 +56,7 @@
             {
                 "indexed": true,
                 "internalType": "bytes32",
-                "name": "list",
+                "name": "collection",
                 "type": "bytes32"
             },
             {
@@ -43,7 +75,7 @@
             {
                 "indexed": true,
                 "internalType": "bytes32",
-                "name": "list",
+                "name": "collection",
                 "type": "bytes32"
             },
             {
@@ -67,38 +99,6 @@
         "inputs": [
             {
                 "indexed": true,
-                "internalType": "bytes32",
-                "name": "list",
-                "type": "bytes32"
-            }
-        ],
-        "name": "ListArchived",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "bytes32",
-                "name": "list",
-                "type": "bytes32"
-            },
-            {
-                "indexed": false,
-                "internalType": "address",
-                "name": "proxy",
-                "type": "address"
-            }
-        ],
-        "name": "ListCreated",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
                 "internalType": "address",
                 "name": "newOwner",
                 "type": "address"
@@ -111,11 +111,11 @@
         "inputs": [
             {
                 "internalType": "bytes32",
-                "name": "list",
+                "name": "collection",
                 "type": "bytes32"
             }
         ],
-        "name": "archiveList",
+        "name": "archiveCollection",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -124,30 +124,11 @@
         "inputs": [
             {
                 "internalType": "bytes32",
-                "name": "list",
-                "type": "bytes32"
-            }
-        ],
-        "name": "createList",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "proxy",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes32",
                 "name": "",
                 "type": "bytes32"
             }
         ],
-        "name": "listToProxy",
+        "name": "collectionToProxy",
         "outputs": [
             {
                 "internalType": "address",
@@ -156,6 +137,25 @@
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "collection",
+                "type": "bytes32"
+            }
+        ],
+        "name": "createCollection",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "proxy",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -188,7 +188,7 @@
         "inputs": [
             {
                 "internalType": "bytes32",
-                "name": "list",
+                "name": "collection",
                 "type": "bytes32"
             },
             {
