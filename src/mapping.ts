@@ -1,4 +1,4 @@
-import { Bytes, store } from "@graphprotocol/graph-ts"
+import { Bytes, store, ipfs } from "@graphprotocol/graph-ts"
 import { CollectionCreated, CollectionArchived, ElementAdded, ElementUpdated } from "../generated/Registry/Registry"
 import { Collection, Adapter, CollectionAdapter } from "../generated/schema"
 
@@ -12,6 +12,34 @@ function enableList(listId: Bytes): void {
     collection.archived = false
     collection.save()
   }
+}
+
+function getDefinedProperty(code: string, property: string): string | null {
+  let searchString = "exports." + property +" = '"
+  let match = code.indexOf(searchString)
+  if (match != -1) {
+    let start = match + searchString.length
+    let end = code.indexOf("'", start + 1)
+
+    if (end != -1) {
+      return code.substring(start, end)
+    }
+  }
+  return null
+}
+
+function createAdapter(cid: string): Adapter {
+  let adapter = new Adapter(cid)
+
+  let data = ipfs.cat(cid)
+
+  if (data) {
+    let code = data.toString()
+    adapter.version = getDefinedProperty(code, 'version')
+    let signer = getDefinedProperty(code, 'signer')
+    adapter.signer = signer ? Bytes.fromHexString(signer) as Bytes : null
+  }
+  return adapter
 }
 
 export function handleCollectionCreated(event: CollectionCreated): void {
@@ -34,7 +62,7 @@ export function handleElementAdded(event: ElementAdded): void {
 
   let adapter = Adapter.load(adapterCid)
   if (!adapter) {
-    adapter = new Adapter(adapterCid)
+    adapter = createAdapter(adapterCid)
   }
 
   let collectionAdapter = new CollectionAdapter(event.params.collection.toString() + '-' + adapterCid)
@@ -54,7 +82,7 @@ export function handleElementUpdated(event: ElementUpdated): void {
 
   let newAdapter = Adapter.load(newCid)
   if (!newAdapter) {
-    newAdapter = new Adapter(newCid)
+    newAdapter = createAdapter(newCid)
   }
 
   let oldListAdapter = CollectionAdapter.load(event.params.collection.toString() + '-' + oldCid)
