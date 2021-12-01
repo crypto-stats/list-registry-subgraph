@@ -21,6 +21,8 @@ dataSources:
       eventHandlers:
         - event: ListCreated(indexed bytes32,address)
           handler: handleListCreated
+        - event: ListArchived(indexed bytes32)
+          handler: handleListArchived
         - event: ElementAdded(indexed bytes32,bytes32)
           handler: handleElementAdded
         - event: ElementUpdated(indexed bytes32,bytes32,bytes32)

@@ -2,6 +2,7 @@ type List @entity {
   id: ID!
   proxy: Bytes!
   adapters: [ListAdapter!] @derivedFrom(field: "list")
+  archived: Boolean
 }
 
 type Adapter @entity {

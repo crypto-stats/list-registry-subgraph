@@ -1,14 +1,30 @@
 import { Bytes, store } from "@graphprotocol/graph-ts"
-import { ListCreated, ElementAdded, ElementUpdated } from "../generated/Registry/Registry"
+import { ListCreated, ListArchived, ElementAdded, ElementUpdated } from "../generated/Registry/Registry"
 import { List, Adapter, ListAdapter } from "../generated/schema"
 
 function decodeCID(cid: Bytes): string {
   return Bytes.fromHexString('1220' + cid.toHexString().slice(2)).toBase58()
 }
 
+function enableList(listId: Bytes): void {
+  let list = List.load(listId.toString())
+  if (list.archived) {
+    list.archived = false
+    list.save()
+  }
+}
+
 export function handleListCreated(event: ListCreated): void {
   let list = new List(event.params.list.toString())
   list.proxy = event.params.proxy
+  list.archived = false
+
+  list.save()
+}
+
+export function handleListArchived(event: ListArchived): void {
+  let list = new List(event.params.list.toString())
+  list.archived = true
 
   list.save()
 }
@@ -25,6 +41,8 @@ export function handleElementAdded(event: ElementAdded): void {
   listAdapter.list = event.params.list.toString()
   listAdapter.adapter = adapterCid
   listAdapter.previousVersions = []
+
+  enableList(event.params.list)
 
   adapter.save()
   listAdapter.save()
@@ -47,6 +65,8 @@ export function handleElementUpdated(event: ElementUpdated): void {
   listAdapter.list = event.params.list.toString()
   listAdapter.adapter = newCid
   listAdapter.previousVersions = previousVersions
+
+  enableList(event.params.list)
 
   newAdapter.save()
   listAdapter.save()

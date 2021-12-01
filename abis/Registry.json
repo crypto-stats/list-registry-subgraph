@@ -70,6 +70,19 @@
                 "internalType": "bytes32",
                 "name": "list",
                 "type": "bytes32"
+            }
+        ],
+        "name": "ListArchived",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "list",
+                "type": "bytes32"
             },
             {
                 "indexed": false,
@@ -93,6 +106,19 @@
         ],
         "name": "OwnershipTransferred",
         "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "list",
+                "type": "bytes32"
+            }
+        ],
+        "name": "archiveList",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     },
     {
         "inputs": [
