@@ -86,7 +86,7 @@ export function handleElementUpdated(event: ElementUpdated): void {
   }
 
   let oldListAdapter = CollectionAdapter.load(event.params.collection.toString() + '-' + oldCid)
-  let previousVersions = oldListAdapter.previousVersions
+  let previousVersions: string[] = oldListAdapter ? oldListAdapter.previousVersions : []
   previousVersions.push(oldCid)
 
   let collectionAdapter = new CollectionAdapter(event.params.collection.toString() + '-' + newCid)
