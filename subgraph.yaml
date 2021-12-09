@@ -27,4 +27,6 @@ dataSources:
           handler: handleElementAdded
         - event: ElementUpdated(indexed bytes32,bytes32,bytes32)
           handler: handleElementUpdated
+        - event: ElementRemoved(indexed bytes32,bytes32)
+          handler: handleElementRemoved
       file: ./src/mapping.ts

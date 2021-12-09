@@ -1,5 +1,5 @@
 import { Bytes, store, ipfs } from "@graphprotocol/graph-ts"
-import { CollectionCreated, CollectionArchived, ElementAdded, ElementUpdated } from "../generated/Registry/Registry"
+import { CollectionCreated, CollectionArchived, ElementAdded, ElementUpdated, ElementRemoved } from "../generated/Registry/Registry"
 import { Collection, Adapter, CollectionAdapter } from "../generated/schema"
 
 function decodeCID(cid: Bytes): string {
@@ -98,6 +98,13 @@ export function handleElementUpdated(event: ElementUpdated): void {
 
   newAdapter.save()
   collectionAdapter.save()
+
+  store.remove('Adapter', oldCid)
+  store.remove('CollectionAdapter', event.params.collection.toString() + '-' + oldCid)
+}
+
+export function handleElementRemoved(event: ElementRemoved): void {
+  let oldCid = decodeCID(event.params.oldElement)
 
   store.remove('Adapter', oldCid)
   store.remove('CollectionAdapter', event.params.collection.toString() + '-' + oldCid)
