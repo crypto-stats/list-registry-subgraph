@@ -35,6 +35,7 @@ function createAdapter(cid: string): Adapter {
 
   if (data) {
     let code = data.toString()
+    adapter.code = code
     adapter.version = getDefinedProperty(code, 'version')
     let signer = getDefinedProperty(code, 'signer')
     adapter.signer = signer ? Bytes.fromHexString(signer) as Bytes : null
