@@ -1,6 +1,6 @@
-import { Bytes, store, ipfs } from "@graphprotocol/graph-ts"
+import { Address, Bytes, store, ipfs } from "@graphprotocol/graph-ts"
 import { CollectionCreated, CollectionArchived, ElementAdded, ElementUpdated, ElementRemoved } from "../generated/Registry/Registry"
-import { Collection, Adapter, CollectionAdapter } from "../generated/schema"
+import { Collection, Adapter, CollectionAdapter, Signer } from "../generated/schema"
 
 function decodeCID(cid: Bytes): string {
   return Bytes.fromHexString('1220' + cid.toHexString().slice(2)).toBase58()
@@ -38,9 +38,20 @@ function createAdapter(cid: string): Adapter {
     adapter.code = code
     adapter.version = getDefinedProperty(code, 'version')
     let signer = getDefinedProperty(code, 'signer')
-    adapter.signer = signer ? Bytes.fromHexString(signer) as Bytes : null
+    adapter.signer = signer ? Bytes.fromHexString(signer).toHex() : null
   }
   return adapter
+}
+
+function getSigner(signerAddress: string): Signer {
+  let signer = Signer.load(signerAddress)
+  if (!signer) {
+    signer = new Signer(signerAddress)
+    signer.activeVerifiedAdapters = 0
+    signer.totalVerifiedAdapters = 0
+  }
+
+  return signer!
 }
 
 export function handleCollectionCreated(event: CollectionCreated): void {
@@ -66,6 +77,13 @@ export function handleElementAdded(event: ElementAdded): void {
     adapter = createAdapter(adapterCid)
   }
 
+  if (adapter.signer) {
+    let signer = getSigner(adapter.signer)
+    signer.activeVerifiedAdapters += 1
+    signer.totalVerifiedAdapters += 1
+    signer.save()
+  }
+
   let collectionAdapter = new CollectionAdapter(event.params.collection.toString() + '-' + adapterCid)
   collectionAdapter.collection = event.params.collection.toString()
   collectionAdapter.adapter = adapterCid
@@ -86,6 +104,24 @@ export function handleElementUpdated(event: ElementUpdated): void {
     newAdapter = createAdapter(newCid)
   }
 
+  let signer: Signer
+  if (newAdapter.signer) {
+    signer = getSigner(newAdapter.signer)
+    signer.activeVerifiedAdapters += 1
+    signer.totalVerifiedAdapters += 1
+  }
+
+  let oldAdapter = Adapter.load(oldCid)
+  if (!!oldAdapter && !!oldAdapter.signer) {
+    if (!signer || signer.id !== oldAdapter.signer) {
+      let oldSigner = getSigner(oldAdapter.signer)
+      oldSigner.activeVerifiedAdapters -= 1
+      oldSigner.save()
+    } else {
+      signer.totalVerifiedAdapters -= 1
+    }
+  }
+
   let oldListAdapter = CollectionAdapter.load(event.params.collection.toString() + '-' + oldCid)
   let previousVersions: string[] = oldListAdapter ? oldListAdapter.previousVersions : []
   previousVersions.push(oldCid)
@@ -99,6 +135,9 @@ export function handleElementUpdated(event: ElementUpdated): void {
 
   newAdapter.save()
   collectionAdapter.save()
+  if (signer) {
+    signer.save()
+  }
 
   store.remove('Adapter', oldCid)
   store.remove('CollectionAdapter', event.params.collection.toString() + '-' + oldCid)

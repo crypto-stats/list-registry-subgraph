@@ -8,7 +8,7 @@ type Collection @entity {
 type Adapter @entity {
   id: ID!
   version: String
-  signer: Bytes
+  signer: Signer
   collections: [CollectionAdapter!] @derivedFrom(field: "adapter")
   code: String
 }
@@ -18,4 +18,11 @@ type CollectionAdapter @entity {
   collection: Collection!
   adapter: Adapter!
   previousVersions: [String!]!
+}
+
+type Signer @entity {
+  id: ID!
+  activeVerifiedAdapters: Int!
+  totalVerifiedAdapters: Int!
+  adapters: [Adapter!] @derivedFrom(field: "signer")
 }
