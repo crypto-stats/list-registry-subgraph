@@ -75,6 +75,7 @@ export function handleElementAdded(event: ElementAdded): void {
   let adapter = Adapter.load(adapterCid)
   if (!adapter) {
     adapter = createAdapter(adapterCid)
+    adapter.rootAdapter = adapterCid // self-referencial
   }
 
   if (adapter.signer) {
@@ -121,6 +122,8 @@ export function handleElementUpdated(event: ElementUpdated): void {
       signer.totalVerifiedAdapters -= 1
     }
   }
+
+  newAdapter.rootAdapter = !!oldAdapter && !!oldAdapter.rootAdapter ? oldAdapter.rootAdapter : oldCid
 
   let oldListAdapter = CollectionAdapter.load(event.params.collection.toString() + '-' + oldCid)
   let previousVersions: string[] = oldListAdapter ? oldListAdapter.previousVersions : []
