@@ -139,13 +139,11 @@ export function handleElementUpdated(event: ElementUpdated): void {
     signer.save()
   }
 
-  store.remove('Adapter', oldCid)
   store.remove('CollectionAdapter', event.params.collection.toString() + '-' + oldCid)
 }
 
 export function handleElementRemoved(event: ElementRemoved): void {
   let oldCid = decodeCID(event.params.oldElement)
 
-  store.remove('Adapter', oldCid)
   store.remove('CollectionAdapter', event.params.collection.toString() + '-' + oldCid)
 }
