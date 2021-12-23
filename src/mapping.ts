@@ -1,4 +1,4 @@
-import { Address, Bytes, store, ipfs } from "@graphprotocol/graph-ts"
+import { Bytes, store, ethereum, ipfs } from "@graphprotocol/graph-ts"
 import { CollectionCreated, CollectionArchived, ElementAdded, ElementUpdated, ElementRemoved } from "../generated/Registry/Registry"
 import { Collection, Adapter, CollectionAdapter, Signer } from "../generated/schema"
 
@@ -43,6 +43,17 @@ function createAdapter(cid: string): Adapter {
   return adapter
 }
 
+function createCollectionAdapter(collection: string, adapter: string, event: ethereum.Event): CollectionAdapter {
+  let collectionAdapter = new CollectionAdapter(collection.toString() + '-' + adapter)
+  collectionAdapter.collection = collection.toString()
+  collectionAdapter.adapter = adapter
+  collectionAdapter.previousVersions = []
+  collectionAdapter.verificationTime = event.block.timestamp.toI32()
+  collectionAdapter.verificationBlock = event.block.number.toI32()
+
+  return collectionAdapter
+}
+
 function getSigner(signerAddress: string): Signer {
   let signer = Signer.load(signerAddress)
   if (!signer) {
@@ -85,10 +96,7 @@ export function handleElementAdded(event: ElementAdded): void {
     signer.save()
   }
 
-  let collectionAdapter = new CollectionAdapter(event.params.collection.toString() + '-' + adapterCid)
-  collectionAdapter.collection = event.params.collection.toString()
-  collectionAdapter.adapter = adapterCid
-  collectionAdapter.previousVersions = []
+  let collectionAdapter = createCollectionAdapter(event.params.collection.toString(), adapterCid, event)
 
   enableList(event.params.collection)
 
@@ -123,15 +131,13 @@ export function handleElementUpdated(event: ElementUpdated): void {
     }
   }
 
-  newAdapter.rootAdapter = !!oldAdapter && !!oldAdapter.rootAdapter ? oldAdapter.rootAdapter : oldCid
+  newAdapter.rootAdapter = oldAdapter != null ? oldAdapter.rootAdapter : newCid
 
   let oldListAdapter = CollectionAdapter.load(event.params.collection.toString() + '-' + oldCid)
   let previousVersions: string[] = oldListAdapter ? oldListAdapter.previousVersions : []
   previousVersions.push(oldCid)
 
-  let collectionAdapter = new CollectionAdapter(event.params.collection.toString() + '-' + newCid)
-  collectionAdapter.collection = event.params.collection.toString()
-  collectionAdapter.adapter = newCid
+  let collectionAdapter = createCollectionAdapter(event.params.collection.toString(), newCid, event)
   collectionAdapter.previousVersions = previousVersions
 
   enableList(event.params.collection)

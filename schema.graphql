@@ -10,7 +10,7 @@ type Adapter @entity {
   version: String
   signer: Signer
   collections: [CollectionAdapter!] @derivedFrom(field: "adapter")
-  rootAdapter: Adapter
+  rootAdapter: Adapter!
   descendents: [Adapter!] @derivedFrom(field: "rootAdapter")
   code: String
 }
@@ -20,6 +20,8 @@ type CollectionAdapter @entity {
   collection: Collection!
   adapter: Adapter!
   previousVersions: [String!]!
+  verificationTime: Int!
+  verificationBlock: Int!
 }
 
 type Signer @entity {
