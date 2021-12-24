@@ -1,6 +1,7 @@
 import { Bytes, store, ethereum, ipfs } from "@graphprotocol/graph-ts"
 import { CollectionCreated, CollectionArchived, ElementAdded, ElementUpdated, ElementRemoved } from "../generated/Registry/Registry"
 import { Collection, Adapter, CollectionAdapter, Signer } from "../generated/schema"
+import { makeSlug } from "./utils"
 
 function decodeCID(cid: Bytes): string {
   return Bytes.fromHexString('1220' + cid.toHexString().slice(2)).toBase58()
@@ -8,6 +9,10 @@ function decodeCID(cid: Bytes): string {
 
 function enableList(listId: Bytes): void {
   let collection = Collection.load(listId.toString())
+  if (!collection) {
+    return
+  }
+
   if (collection.archived) {
     collection.archived = false
     collection.save()
@@ -37,6 +42,8 @@ function createAdapter(cid: string): Adapter {
     let code = data.toString()
     adapter.code = code
     adapter.version = getDefinedProperty(code, 'version')
+    adapter.name = getDefinedProperty(code, 'name')
+    adapter.slug = makeSlug(adapter.name)
     let signer = getDefinedProperty(code, 'signer')
     adapter.signer = signer ? Bytes.fromHexString(signer).toHex() : null
   }
@@ -62,7 +69,7 @@ function getSigner(signerAddress: string): Signer {
     signer.totalVerifiedAdapters = 0
   }
 
-  return signer!
+  return signer
 }
 
 export function handleCollectionCreated(event: CollectionCreated): void {
@@ -90,7 +97,7 @@ export function handleElementAdded(event: ElementAdded): void {
   }
 
   if (adapter.signer) {
-    let signer = getSigner(adapter.signer)
+    let signer = getSigner(adapter.signer!)
     signer.activeVerifiedAdapters += 1
     signer.totalVerifiedAdapters += 1
     signer.save()
@@ -115,7 +122,7 @@ export function handleElementUpdated(event: ElementUpdated): void {
 
   let signer: Signer
   if (newAdapter.signer) {
-    signer = getSigner(newAdapter.signer)
+    signer = getSigner(newAdapter.signer!)
     signer.activeVerifiedAdapters += 1
     signer.totalVerifiedAdapters += 1
   }
@@ -123,7 +130,7 @@ export function handleElementUpdated(event: ElementUpdated): void {
   let oldAdapter = Adapter.load(oldCid)
   if (!!oldAdapter && !!oldAdapter.signer) {
     if (!signer || signer.id !== oldAdapter.signer) {
-      let oldSigner = getSigner(oldAdapter.signer)
+      let oldSigner = getSigner(oldAdapter.signer!)
       oldSigner.activeVerifiedAdapters -= 1
       oldSigner.save()
     } else {
