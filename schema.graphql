@@ -21,6 +21,7 @@ type CollectionAdapter @entity {
   id: ID!
   collection: Collection!
   adapter: Adapter!
+  adapterSlug: String
   previousVersions: [String!]!
   verificationTime: Int!
   verificationBlock: Int!

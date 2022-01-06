@@ -50,10 +50,11 @@ function createAdapter(cid: string): Adapter {
   return adapter
 }
 
-function createCollectionAdapter(collection: string, adapter: string, event: ethereum.Event): CollectionAdapter {
-  let collectionAdapter = new CollectionAdapter(collection.toString() + '-' + adapter)
+function createCollectionAdapter(collection: string, adapter: Adapter, event: ethereum.Event): CollectionAdapter {
+  let collectionAdapter = new CollectionAdapter(collection.toString() + '-' + adapter.id)
   collectionAdapter.collection = collection.toString()
-  collectionAdapter.adapter = adapter
+  collectionAdapter.adapter = adapter.id
+  collectionAdapter.adapterSlug = adapter.slug
   collectionAdapter.previousVersions = []
   collectionAdapter.verificationTime = event.block.timestamp.toI32()
   collectionAdapter.verificationBlock = event.block.number.toI32()
@@ -103,7 +104,7 @@ export function handleElementAdded(event: ElementAdded): void {
     signer.save()
   }
 
-  let collectionAdapter = createCollectionAdapter(event.params.collection.toString(), adapterCid, event)
+  let collectionAdapter = createCollectionAdapter(event.params.collection.toString(), adapter, event)
 
   enableList(event.params.collection)
 
@@ -144,7 +145,7 @@ export function handleElementUpdated(event: ElementUpdated): void {
   let previousVersions: string[] = oldListAdapter ? oldListAdapter.previousVersions : []
   previousVersions.push(oldCid)
 
-  let collectionAdapter = createCollectionAdapter(event.params.collection.toString(), newCid, event)
+  let collectionAdapter = createCollectionAdapter(event.params.collection.toString(), newAdapter, event)
   collectionAdapter.previousVersions = previousVersions
 
   enableList(event.params.collection)
