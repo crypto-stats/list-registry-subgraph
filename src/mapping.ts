@@ -41,7 +41,7 @@ function getDefinedProperty(code: string, property: string): string | null {
   return null
 }
 
-function createAdapter(cid: string): Adapter {
+function createAdapter(cid: string, event: ethereum.Event): Adapter {
   let adapter = new Adapter(cid)
 
   let data = ipfs.cat(cid)
@@ -54,6 +54,8 @@ function createAdapter(cid: string): Adapter {
     adapter.slug = makeSlug(adapter.name)
     let signer = getDefinedProperty(code, 'signer')
     adapter.signer = signer ? Bytes.fromHexString(signer).toHex() : null
+    adapter.firstVerificationTime = event.block.timestamp.toI32()
+    adapter.firstVerificationBlock = event.block.number.toI32()
   }
   return adapter
 }
@@ -101,7 +103,7 @@ export function handleElementAdded(event: ElementAdded): void {
 
   let adapter = Adapter.load(adapterCid)
   if (!adapter) {
-    adapter = createAdapter(adapterCid)
+    adapter = createAdapter(adapterCid, event)
     adapter.rootAdapter = adapterCid // self-referencial
   }
 
@@ -126,7 +128,7 @@ export function handleElementUpdated(event: ElementUpdated): void {
 
   let newAdapter = Adapter.load(newCid)
   if (!newAdapter) {
-    newAdapter = createAdapter(newCid)
+    newAdapter = createAdapter(newCid, event)
   }
 
   let signer: Signer
