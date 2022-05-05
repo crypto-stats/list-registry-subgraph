@@ -22,9 +22,17 @@ function enableList(listId: Bytes): void {
 function getDefinedProperty(code: string, property: string): string | null {
   let searchString = "exports." + property +" = '"
   let match = code.indexOf(searchString)
+  let doubleQuote = false
+
+  if (match == -1) {
+    doubleQuote = true
+    searchString = "exports." + property + ' = "'
+    match = code.indexOf(searchString)
+  }
+
   if (match != -1) {
     let start = match + searchString.length
-    let end = code.indexOf("'", start + 1)
+    let end = code.indexOf(doubleQuote ? '"' : "'", start + 1)
 
     if (end != -1) {
       return code.substring(start, end)
